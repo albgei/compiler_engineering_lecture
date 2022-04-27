@@ -22,6 +22,8 @@ public class LoxScanner {
             charsQueue.addLast(c);
         }
 
+        long time = System.currentTimeMillis();
+
         while (!charsQueue.isEmpty()) {
             if (charsQueue.getFirst() == ' ')
                 charsQueue.removeFirst();
@@ -31,6 +33,10 @@ public class LoxScanner {
                 returnToken.add(checkMultipleCharacterTokens(lineNumber));
             if (!charsQueue.isEmpty())
                 returnToken.add(checkNumerousToken(lineNumber));
+            if (System.currentTimeMillis() - time > 10000){
+                System.out.println("Zeitüberschreitung beim lesen von Zeile:" + lineNumber);
+                return new ArrayList<>();
+            }
         }
 
         List<Token> temp = new ArrayList<>();
