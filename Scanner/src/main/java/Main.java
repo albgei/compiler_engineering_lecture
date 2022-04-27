@@ -1,0 +1,18 @@
+public class Main {
+
+    static final String program = """
+            fun printSum(a,b) {
+            print a+b;
+            }
+            print 25+60;
+            """;
+
+    public static void main(String[] args) {
+        LoxScanner scanner = new LoxScanner(program);
+        scanner.scan();
+        LoxScanner scanner1 = new LoxScanner("print \"Hello World\";");
+        scanner1.scan();
+        LoxScanner scanner2 = new LoxScanner("12.45");
+        scanner2.scan();
+    }
+}
