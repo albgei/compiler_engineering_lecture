@@ -1,25 +1,26 @@
-package com.thecout.lox;
+import java.util.*;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.thecout.lox.TokenType.EOF;
-
-public class Scanner {
+public class LoxScanner {
 
 
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
+    private Queue<char> charsQueue = new Queue<>();
 
 
-    public Scanner(String source) {
+    public LoxScanner(String source) {
         this.source = source;
     }
 
 
     public List<Token> scanLine(String line, int lineNumber) {
         List<Token> returnToken = new ArrayList<>();
+
+        char[] charsLine = line.toCharArray();
+
+        for (char c : charsLine) {
+        charsQueue.
+        }
 
         return returnToken;
     }
@@ -33,4 +34,9 @@ public class Scanner {
         return tokens;
     }
 
+    private boolean checkFunktion(char c) {
+        if (c == 'f')
+            return true;
+        return false;
+    }
 }

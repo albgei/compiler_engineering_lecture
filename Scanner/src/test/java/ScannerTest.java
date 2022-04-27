@@ -1,14 +1,10 @@
-package test.java;
-
-import com.thecout.lox.Scanner;
-import com.thecout.lox.Token;
-import com.thecout.lox.TokenType;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class ScannerTest {
@@ -21,7 +17,7 @@ public class ScannerTest {
 
     @Test
     void scanLineTest() {
-        Scanner scanner = new Scanner(program);
+        LoxScanner scanner = new LoxScanner(program);
         List<Token> actual = scanner.scanLine(program.split("\n")[0], 0);
         List<TokenType> expected = Arrays.asList(TokenType.FUN, TokenType.IDENTIFIER,
                 TokenType.LEFT_PAREN, TokenType.IDENTIFIER,
