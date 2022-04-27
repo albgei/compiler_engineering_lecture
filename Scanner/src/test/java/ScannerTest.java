@@ -23,9 +23,9 @@ public class ScannerTest {
                 TokenType.LEFT_PAREN, TokenType.IDENTIFIER,
                 TokenType.COMMA, TokenType.IDENTIFIER,
                 TokenType.RIGHT_PAREN, TokenType.LEFT_BRACE);
-        assertEquals(expected.size(), actual.size(), "Expected " + expected.size() + " tokens, got " + actual.size());
         for (int i = 0; i < actual.size(); i++) {
             assertEquals(expected.get(i), actual.get(i).type, "Expected " + expected.get(i) + ", got " + actual.get(i).type);
+            assertEquals(expected.size(), actual.size(), "Expected " + expected.size() + " tokens, got " + actual.size());
         }
     }
 
