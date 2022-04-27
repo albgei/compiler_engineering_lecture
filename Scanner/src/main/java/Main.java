@@ -14,5 +14,7 @@ public class Main {
         scanner1.scan();
         LoxScanner scanner2 = new LoxScanner("12.45");
         scanner2.scan();
+        LoxScanner scanner3 = new LoxScanner("//Kommentar ohne Sinn + - * / oops@ kp");
+        scanner3.scan();
     }
 }

@@ -58,6 +58,10 @@ public class LoxScanner {
         for (char single : singleTokens) {
             if (charsQueue.getFirst() == single) {
                 charsQueue.removeFirst();
+                if (single == '/' && charsQueue.getFirst() == single) {
+                    charsQueue.addFirst('/');
+                    return null;
+                }
                 return generateTokenSingle(String.valueOf(single), lineNumber);
             }
         }
@@ -257,6 +261,20 @@ public class LoxScanner {
             return new Token(TokenType.IDENTIFIER, stringBuilder.toString(), stringBuilder.toString(), lineNumber);
         }
 
+        if (charsQueue.getFirst() == '/') {
+            charsQueue.removeFirst();
+            if (charsQueue.getFirst() == '/') {
+                charsQueue.removeFirst();
+                StringBuilder stringBuilder = new StringBuilder();
+                while (!charsQueue.isEmpty()) {
+                    stringBuilder.append(charsQueue.getFirst());
+                    charsQueue.removeFirst();
+                }
+                return new Token(TokenType.COMMENT, stringBuilder.toString(), stringBuilder.toString(), lineNumber);
+            } else {
+                charsQueue.addFirst('/');
+            }
+        }
 
         return null;
     }
