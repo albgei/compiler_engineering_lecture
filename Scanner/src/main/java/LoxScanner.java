@@ -25,15 +25,28 @@ public class LoxScanner {
         long time = System.currentTimeMillis();
 
         while (!charsQueue.isEmpty()) {
+            if (charsQueue.getFirst() == '/') {
+                charsQueue.removeFirst();
+                if (charsQueue.getFirst() == '/') {
+                    charsQueue.removeFirst();
+                    StringBuilder stringBuilder = new StringBuilder();
+                    while (!charsQueue.isEmpty()) {
+                        stringBuilder.append(charsQueue.getFirst());
+                        charsQueue.removeFirst();
+                    }
+                    returnToken.add(new Token(TokenType.COMMENT, stringBuilder.toString(), stringBuilder.toString(), lineNumber));
+                    break;
+                } else {
+                    charsQueue.addFirst('/');
+                }
+            }
             if (charsQueue.getFirst() == ' ')
                 charsQueue.removeFirst();
             if (!charsQueue.isEmpty())
-                returnToken.add(checkSingleCharacterTokens(lineNumber));
+                returnToken.add(checkStaticCharacterTokens(lineNumber));
             if (!charsQueue.isEmpty())
-                returnToken.add(checkMultipleCharacterTokens(lineNumber));
-            if (!charsQueue.isEmpty())
-                returnToken.add(checkNumerousToken(lineNumber));
-            if (System.currentTimeMillis() - time > 10000){
+                returnToken.add(checkFlexibleCharacterToken(lineNumber));
+            if (System.currentTimeMillis() - time > 10000) {
                 System.out.println("Zeitüberschreitung beim lesen von Zeile:" + lineNumber);
                 return new ArrayList<>();
             }
@@ -46,7 +59,6 @@ public class LoxScanner {
             }
         }
 
-
         return temp;
     }
 
@@ -58,90 +70,57 @@ public class LoxScanner {
         tokens.add(new Token(TokenType.EOF, "", "", lines.length));
         return tokens;
     }
-
-    private Token checkSingleCharacterTokens(int lineNumber) {
-        char[] singleTokens = new char[]{'{', '}', '(', ')', ',', '.', '-', '+', ';', '/', '*', '!', '=', '>', '<'};
-        for (char single : singleTokens) {
-            if (charsQueue.getFirst() == single) {
-                charsQueue.removeFirst();
-                if (single == '/' && charsQueue.getFirst() == single) {
-                    charsQueue.addFirst('/');
-                    return null;
-                }
-                return generateTokenSingle(String.valueOf(single), lineNumber);
-            }
-        }
-        return null;
-    }
-
-    private Token generateTokenSingle(String tString, int lineNumber) {
-        TokenType type = null;
-
-        switch (tString) {
-            case "{":
-                type = TokenType.LEFT_BRACE;
-                break;
-            case "}":
-                type = TokenType.RIGHT_BRACE;
-                break;
-            case "(":
-                type = TokenType.LEFT_PAREN;
-                break;
-            case ")":
-                type = TokenType.RIGHT_PAREN;
-                break;
-            case ",":
-                type = TokenType.COMMA;
-                break;
-            case ".":
-                type = TokenType.DOT;
-                break;
-            case "-":
-                type = TokenType.MINUS;
-                break;
-            case "+":
-                type = TokenType.PLUS;
-                break;
-            case ";":
-                type = TokenType.SEMICOLON;
-                break;
-            case "/":
-                type = TokenType.SLASH;
-                break;
-            case "*":
-                type = TokenType.STAR;
-                break;
-            case "!":
-                type = TokenType.BANG;
-                break;
-            case "=":
-                type = TokenType.EQUAL;
-                break;
-            case ">":
-                type = TokenType.GREATER;
-                break;
-            case "<":
-                type = TokenType.LESS;
-                break;
-        }
-
-        if (type != null)
-            return new Token(type, tString, tString, lineNumber);
-        return null;
+    
+    private Token generateToken(String tString, int lineNumber) {
+        return switch (tString) {
+            case "{" -> new Token(TokenType.LEFT_BRACE, tString, tString, lineNumber);
+            case "}" -> new Token(TokenType.RIGHT_BRACE, tString, tString, lineNumber);
+            case "(" -> new Token(TokenType.LEFT_PAREN, tString, tString, lineNumber);
+            case ")" -> new Token(TokenType.RIGHT_PAREN, tString, tString, lineNumber);
+            case "," -> new Token(TokenType.COMMA, tString, tString, lineNumber);
+            case "." -> new Token(TokenType.DOT, tString, tString, lineNumber);
+            case "-" -> new Token(TokenType.MINUS, tString, tString, lineNumber);
+            case "+" -> new Token(TokenType.PLUS, tString, tString, lineNumber);
+            case ";" -> new Token(TokenType.SEMICOLON, tString, tString, lineNumber);
+            case "/" -> new Token(TokenType.SLASH, tString, tString, lineNumber);
+            case "*" -> new Token(TokenType.STAR, tString, tString, lineNumber);
+            case "!" -> new Token(TokenType.BANG, tString, tString, lineNumber);
+            case "=" -> new Token(TokenType.EQUAL, tString, tString, lineNumber);
+            case ">" -> new Token(TokenType.GREATER, tString, tString, lineNumber);
+            case "<" -> new Token(TokenType.LESS, tString, tString, lineNumber);
+            case "!=" -> new Token(TokenType.BANG_EQUAL, tString, tString, lineNumber);
+            case "==" -> new Token(TokenType.EQUAL_EQUAL, tString, tString, lineNumber);
+            case ">=" -> new Token(TokenType.GREATER_EQUAL, tString, tString, lineNumber);
+            case "<=" -> new Token(TokenType.LESS_EQUAL, tString, tString, lineNumber);
+            case "and" -> new Token(TokenType.AND, tString, tString, lineNumber);
+            case "else" -> new Token(TokenType.ELSE, tString, tString, lineNumber);
+            case "false" -> new Token(TokenType.FALSE, tString, tString, lineNumber);
+            case "fun" -> new Token(TokenType.FUN, tString, tString, lineNumber);
+            case "for" -> new Token(TokenType.FOR, tString, tString, lineNumber);
+            case "if" -> new Token(TokenType.IF, tString, tString, lineNumber);
+            case "nil" -> new Token(TokenType.NIL, tString, tString, lineNumber);
+            case "or" -> new Token(TokenType.OR, tString, tString, lineNumber);
+            case "print " -> new Token(TokenType.PRINT, tString, tString, lineNumber);
+            case "return" -> new Token(TokenType.RETURN, tString, tString, lineNumber);
+            case "true" -> new Token(TokenType.TRUE, tString, tString, lineNumber);
+            case "var" -> new Token(TokenType.VAR, tString, tString, lineNumber);
+            case "while" -> new Token(TokenType.WHILE, tString, tString, lineNumber);
+            default -> null;
+        };
     }
 
 
-    private Token checkMultipleCharacterTokens(int lineNumber) {
-        String[] doubleTokens = new String[]{"!=", "==", ">=", "<=", "and", "else", "false", "fun", "for", "if", "nil", "or", "print ", "return", "true", "var", "while"};
+    private Token checkStaticCharacterTokens(int lineNumber) {
+        String[] doubleTokens = new String[]{"!=", "==", ">=", "<=", "and", "else", "false", "fun", "for", "if", "nil", "or", "print ", "return", "true", "var", "while", "{", "}", "(", ")", ",", ".", "-", "+", ";", "/", "*", "!", "=", ">", "<"};
         for (String multiple : doubleTokens) {
-            if (compareMultiple(multiple)) {
-                return generateTokenMultiple(multiple, lineNumber);
+            if (compare(multiple)) {
+                return generateToken(multiple, lineNumber);
             }
         }
         return null;
     }
 
-    private boolean compareMultiple(String multiple) {
+    private boolean compare(String multiple) {
         char[] multipleChars = multiple.toCharArray();
         char[] charsToCheck = new char[multipleChars.length];
 
@@ -168,76 +147,13 @@ public class LoxScanner {
     private char[] reverseCharArray(char[] cArr) {
         char[] reversed = new char[cArr.length];
         int j = cArr.length - 1;
-        for (int i = 0; i < cArr.length; i++) {
-            reversed[j] = cArr[i];
-            j--;
+        for (char c : cArr) {
+            reversed[j--] = c;
         }
         return reversed;
     }
 
-    private Token generateTokenMultiple(String tString, int lineNumber) {
-        TokenType type = null;
-
-        switch (tString) {
-            case "!=":
-                type = TokenType.BANG_EQUAL;
-                break;
-            case "==":
-                type = TokenType.EQUAL_EQUAL;
-                break;
-            case ">=":
-                type = TokenType.GREATER_EQUAL;
-                break;
-            case "<=":
-                type = TokenType.LESS_EQUAL;
-                break;
-            case "and":
-                type = TokenType.AND;
-                break;
-            case "else":
-                type = TokenType.ELSE;
-                break;
-            case "false":
-                type = TokenType.FALSE;
-                break;
-            case "fun":
-                type = TokenType.FUN;
-                break;
-            case "for":
-                type = TokenType.FOR;
-                break;
-            case "if":
-                type = TokenType.IF;
-                break;
-            case "nil":
-                type = TokenType.NIL;
-                break;
-            case "or":
-                type = TokenType.OR;
-                break;
-            case "print ":
-                type = TokenType.PRINT;
-                break;
-            case "return":
-                type = TokenType.RETURN;
-                break;
-            case "true":
-                type = TokenType.TRUE;
-                break;
-            case "var":
-                type = TokenType.VAR;
-                break;
-            case "while":
-                type = TokenType.WHILE;
-                break;
-        }
-        if (type != null)
-            return new Token(type, tString, tString, lineNumber);
-        return null;
-    }
-
-
-    private Token checkNumerousToken(int lineNumber) {
+    private Token checkFlexibleCharacterToken(int lineNumber) {
         if (charsQueue.getFirst() == '"') {
             StringBuilder stringBuilder = new StringBuilder();
             charsQueue.removeFirst();
@@ -249,48 +165,24 @@ public class LoxScanner {
             return new Token(TokenType.STRING, stringBuilder.toString(), stringBuilder.toString(), lineNumber);
         }
 
-        if (isNumber(charsQueue.getFirst())) {
+        if ((charsQueue.getFirst() <= 57 && charsQueue.getFirst() >= 48) || (charsQueue.getFirst() == '.')) {
             StringBuilder stringBuilder = new StringBuilder();
-            while (!charsQueue.isEmpty() && isNumber(charsQueue.getFirst())) {
+            while (!charsQueue.isEmpty() && ((charsQueue.getFirst() <= 57 && charsQueue.getFirst() >= 48) || (charsQueue.getFirst() == '.'))) {
                 stringBuilder.append(charsQueue.getFirst());
                 charsQueue.removeFirst();
             }
             return generateTokenNumber(stringBuilder.toString(), lineNumber);
         }
 
-        if (isCharacter(charsQueue.getFirst())) {
+        if ((charsQueue.getFirst() <= 89 && charsQueue.getFirst() >= 65) || (charsQueue.getFirst() <= 122 && charsQueue.getFirst() >= 97)) {
             StringBuilder stringBuilder = new StringBuilder();
-            while (!charsQueue.isEmpty() && isCharacter(charsQueue.getFirst())) {
+            while (!charsQueue.isEmpty() && ((charsQueue.getFirst() <= 89 && charsQueue.getFirst() >= 65) || (charsQueue.getFirst() <= 122 && charsQueue.getFirst() >= 97))) {
                 stringBuilder.append(charsQueue.getFirst());
                 charsQueue.removeFirst();
             }
             return new Token(TokenType.IDENTIFIER, stringBuilder.toString(), stringBuilder.toString(), lineNumber);
         }
-
-        if (charsQueue.getFirst() == '/') {
-            charsQueue.removeFirst();
-            if (charsQueue.getFirst() == '/') {
-                charsQueue.removeFirst();
-                StringBuilder stringBuilder = new StringBuilder();
-                while (!charsQueue.isEmpty()) {
-                    stringBuilder.append(charsQueue.getFirst());
-                    charsQueue.removeFirst();
-                }
-                return new Token(TokenType.COMMENT, stringBuilder.toString(), stringBuilder.toString(), lineNumber);
-            } else {
-                charsQueue.addFirst('/');
-            }
-        }
-
         return null;
-    }
-
-    private boolean isNumber(char c) {
-        return (c <= 57 && c >= 48) || (c == '.');
-    }
-
-    private boolean isCharacter(char c) {
-        return (c <= 89 && c >= 65) || (c <= 122 && c >= 97);
     }
 
     private Token generateTokenNumber(String str, int lineNumber) {
