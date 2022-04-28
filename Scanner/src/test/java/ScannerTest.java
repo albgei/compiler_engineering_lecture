@@ -25,8 +25,8 @@ public class ScannerTest {
                 TokenType.RIGHT_PAREN, TokenType.LEFT_BRACE);
         for (int i = 0; i < actual.size(); i++) {
             assertEquals(expected.get(i), actual.get(i).type, "Expected " + expected.get(i) + ", got " + actual.get(i).type);
-            assertEquals(expected.size(), actual.size(), "Expected " + expected.size() + " tokens, got " + actual.size());
         }
+        assertEquals(expected.size(), actual.size(), "Expected " + expected.size() + " tokens, got " + actual.size());
     }
 
     @Test
