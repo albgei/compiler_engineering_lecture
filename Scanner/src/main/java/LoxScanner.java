@@ -22,6 +22,9 @@ public class LoxScanner {
         long time = System.currentTimeMillis();
 
         while (!charsQueue.isEmpty()) {
+            if (charsQueue.getFirst() == ' ')
+                charsQueue.removeFirst();
+
             if (charsQueue.getFirst() == '/') {
                 charsQueue.removeFirst();
                 if (charsQueue.getFirst() == '/') {
@@ -37,8 +40,6 @@ public class LoxScanner {
                     charsQueue.addFirst('/');
                 }
             }
-            if (charsQueue.getFirst() == ' ')
-                charsQueue.removeFirst();
 
             if (charsQueue.isEmpty())
                 break;
@@ -49,6 +50,7 @@ public class LoxScanner {
                 return new ArrayList<>();
             }
         }
+
         if (returnToken.contains(null)) {
             List<Token> temp = new ArrayList<>(returnToken);
             returnToken.clear();
