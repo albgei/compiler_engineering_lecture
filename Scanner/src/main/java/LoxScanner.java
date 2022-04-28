@@ -2,10 +2,9 @@ import java.util.*;
 
 public class LoxScanner {
 
-
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
-    private Deque<Character> charsQueue = new ArrayDeque<>();
+    private final Deque<Character> charsQueue = new ArrayDeque<>();
 
 
     public LoxScanner(String source) {
@@ -16,9 +15,7 @@ public class LoxScanner {
     public List<Token> scanLine(String line, int lineNumber) {
         List<Token> returnToken = new ArrayList<>();
 
-        char[] charsLine = line.toCharArray();
-
-        for (char c : charsLine) {
+        for (char c : line.toCharArray()) {
             charsQueue.addLast(c);
         }
 
@@ -42,35 +39,42 @@ public class LoxScanner {
             }
             if (charsQueue.getFirst() == ' ')
                 charsQueue.removeFirst();
-            if (!charsQueue.isEmpty())
-                returnToken.add(checkStaticCharacterTokens(lineNumber));
-            if (!charsQueue.isEmpty())
-                returnToken.add(checkFlexibleCharacterToken(lineNumber));
+
+            if (charsQueue.isEmpty())
+                break;
+            returnToken.add(checkStaticCharacterTokens(lineNumber));
+
+            if (charsQueue.isEmpty())
+                break;
+            returnToken.add(checkFlexibleCharacterToken(lineNumber));
+
             if (System.currentTimeMillis() - time > 10000) {
                 System.out.println("Zeitüberschreitung beim lesen von Zeile:" + lineNumber);
                 return new ArrayList<>();
             }
         }
 
-        List<Token> temp = new ArrayList<>();
-        for (Token t : returnToken) {
+        List<Token> temp = new ArrayList<>(returnToken);
+        returnToken.clear();
+        for (Token t : temp) {
             if (t != null) {
-                temp.add(t);
+                returnToken.add(t);
             }
         }
 
-        return temp;
+        return returnToken;
     }
 
     public List<Token> scan() {
         String[] lines = source.split("\n");
-        for (int i = 0; i < lines.length; i++) {
-            tokens.addAll(scanLine(lines[i], i));
+        int i = 0;
+        for (String line : lines) {
+            tokens.addAll(scanLine(line, i++));
         }
         tokens.add(new Token(TokenType.EOF, "", "", lines.length));
         return tokens;
     }
-    
+
     private Token generateToken(String tString, int lineNumber) {
         return switch (tString) {
             case "{" -> new Token(TokenType.LEFT_BRACE, tString, tString, lineNumber);
