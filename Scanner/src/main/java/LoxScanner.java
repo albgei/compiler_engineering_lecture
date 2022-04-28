@@ -44,21 +44,18 @@ public class LoxScanner {
                 break;
             returnToken.add(checkStaticCharacterTokens(lineNumber));
 
-            if (charsQueue.isEmpty())
-                break;
-            returnToken.add(checkFlexibleCharacterToken(lineNumber));
-
             if (System.currentTimeMillis() - time > 10000) {
                 System.out.println("Zeitüberschreitung beim lesen von Zeile:" + lineNumber);
                 return new ArrayList<>();
             }
         }
-
-        List<Token> temp = new ArrayList<>(returnToken);
-        returnToken.clear();
-        for (Token t : temp) {
-            if (t != null) {
-                returnToken.add(t);
+        if (returnToken.contains(null)) {
+            List<Token> temp = new ArrayList<>(returnToken);
+            returnToken.clear();
+            for (Token t : temp) {
+                if (t != null) {
+                    returnToken.add(t);
+                }
             }
         }
 
@@ -115,49 +112,13 @@ public class LoxScanner {
 
 
     private Token checkStaticCharacterTokens(int lineNumber) {
-        String[] doubleTokens = new String[]{"!=", "==", ">=", "<=", "and", "else", "false", "fun", "for", "if", "nil", "or", "print ", "return", "true", "var", "while", "{", "}", "(", ")", ",", ".", "-", "+", ";", "/", "*", "!", "=", ">", "<"};
+        String[] doubleTokens = new String[]{"!=", "==", ">=", "<=", "and", "else", "false", "fun", "for", "if", "nil", "or", "print ", "return", "true", "var", "while", "{", "}", "(", ")", ",", ".", "-", "+", ";", "*", "!", "=", ">", "<", "/"};
         for (String multiple : doubleTokens) {
             if (compare(multiple)) {
                 return generateToken(multiple, lineNumber);
             }
         }
-        return null;
-    }
 
-    private boolean compare(String multiple) {
-        char[] multipleChars = multiple.toCharArray();
-        char[] charsToCheck = new char[multipleChars.length];
-
-        if (charsQueue.size() < multipleChars.length)
-            return false;
-
-        for (int i = 0; i < multipleChars.length; i++) {
-            charsToCheck[i] = charsQueue.getFirst();
-            charsQueue.removeFirst();
-        }
-
-        for (int i = 0; i < multipleChars.length; i++) {
-            if (charsToCheck[i] != multipleChars[i]) {
-                charsToCheck = reverseCharArray(charsToCheck);
-                for (char c : charsToCheck) {
-                    charsQueue.addFirst(c);
-                }
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private char[] reverseCharArray(char[] cArr) {
-        char[] reversed = new char[cArr.length];
-        int j = cArr.length - 1;
-        for (char c : cArr) {
-            reversed[j--] = c;
-        }
-        return reversed;
-    }
-
-    private Token checkFlexibleCharacterToken(int lineNumber) {
         if (charsQueue.getFirst() == '"') {
             StringBuilder stringBuilder = new StringBuilder();
             charsQueue.removeFirst();
@@ -187,6 +148,38 @@ public class LoxScanner {
             return new Token(TokenType.IDENTIFIER, stringBuilder.toString(), stringBuilder.toString(), lineNumber);
         }
         return null;
+    }
+
+    private boolean compare(String multiple) {
+        char[] multipleChars = multiple.toCharArray();
+        char[] charsToCheck = new char[multipleChars.length];
+
+        if (charsQueue.size() < multipleChars.length)
+            return false;
+
+        for (int i = 0; i < multipleChars.length; i++) {
+            charsToCheck[i] = charsQueue.getFirst();
+            charsQueue.removeFirst();
+        }
+        int i = 0;
+        for (char c : charsToCheck) {
+            if (c != multipleChars[i++]) {
+                for (char cs : reverseCharArray(charsToCheck)) {
+                    charsQueue.addFirst(cs);
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private char[] reverseCharArray(char[] cArr) {
+        char[] reversed = new char[cArr.length];
+        int j = cArr.length - 1;
+        for (char c : cArr) {
+            reversed[j--] = c;
+        }
+        return reversed;
     }
 
     private Token generateTokenNumber(String str, int lineNumber) {
