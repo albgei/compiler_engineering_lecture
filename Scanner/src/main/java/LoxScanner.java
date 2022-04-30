@@ -74,50 +74,10 @@ public class LoxScanner {
         return tokens;
     }
 
-    private Token generateToken(String tString, int lineNumber) {
-        return switch (tString) {
-            case "{" -> new Token(TokenType.LEFT_BRACE, tString, tString, lineNumber);
-            case "}" -> new Token(TokenType.RIGHT_BRACE, tString, tString, lineNumber);
-            case "(" -> new Token(TokenType.LEFT_PAREN, tString, tString, lineNumber);
-            case ")" -> new Token(TokenType.RIGHT_PAREN, tString, tString, lineNumber);
-            case "," -> new Token(TokenType.COMMA, tString, tString, lineNumber);
-            case "." -> new Token(TokenType.DOT, tString, tString, lineNumber);
-            case "-" -> new Token(TokenType.MINUS, tString, tString, lineNumber);
-            case "+" -> new Token(TokenType.PLUS, tString, tString, lineNumber);
-            case ";" -> new Token(TokenType.SEMICOLON, tString, tString, lineNumber);
-            case "/" -> new Token(TokenType.SLASH, tString, tString, lineNumber);
-            case "*" -> new Token(TokenType.STAR, tString, tString, lineNumber);
-            case "!" -> new Token(TokenType.BANG, tString, tString, lineNumber);
-            case "=" -> new Token(TokenType.EQUAL, tString, tString, lineNumber);
-            case ">" -> new Token(TokenType.GREATER, tString, tString, lineNumber);
-            case "<" -> new Token(TokenType.LESS, tString, tString, lineNumber);
-            case "!=" -> new Token(TokenType.BANG_EQUAL, tString, tString, lineNumber);
-            case "==" -> new Token(TokenType.EQUAL_EQUAL, tString, tString, lineNumber);
-            case ">=" -> new Token(TokenType.GREATER_EQUAL, tString, tString, lineNumber);
-            case "<=" -> new Token(TokenType.LESS_EQUAL, tString, tString, lineNumber);
-            case "and" -> new Token(TokenType.AND, tString, tString, lineNumber);
-            case "else" -> new Token(TokenType.ELSE, tString, tString, lineNumber);
-            case "false" -> new Token(TokenType.FALSE, tString, tString, lineNumber);
-            case "fun" -> new Token(TokenType.FUN, tString, tString, lineNumber);
-            case "for" -> new Token(TokenType.FOR, tString, tString, lineNumber);
-            case "if" -> new Token(TokenType.IF, tString, tString, lineNumber);
-            case "nil" -> new Token(TokenType.NIL, tString, tString, lineNumber);
-            case "or" -> new Token(TokenType.OR, tString, tString, lineNumber);
-            case "print " -> new Token(TokenType.PRINT, tString, tString, lineNumber);
-            case "return" -> new Token(TokenType.RETURN, tString, tString, lineNumber);
-            case "true" -> new Token(TokenType.TRUE, tString, tString, lineNumber);
-            case "var" -> new Token(TokenType.VAR, tString, tString, lineNumber);
-            case "while" -> new Token(TokenType.WHILE, tString, tString, lineNumber);
-            default -> null;
-        };
-    }
-
-
     private Token checkStaticCharacterTokens(int lineNumber) {
-        String[] doubleTokens = new String[]{"!=", "==", ">=", "<=", "and", "else", "false", "fun", "for", "if", "nil", "or", "print ", "return", "true", "var", "while", "{", "}", "(", ")", ",", ".", "-", "+", ";", "*", "!", "=", ">", "<", "/"};
-        for (String multiple : doubleTokens) {
-            if (compare(multiple)) {
-                return generateToken(multiple, lineNumber);
+        for (TokenType tokenType : TokenType.values()) {
+            if (tokenType != TokenType.COMMENT && tokenType != TokenType.EOF && tokenType != TokenType.IDENTIFIER && tokenType != TokenType.NUMBER && tokenType != TokenType.STRING && compare(tokenType)) {
+                return new Token(tokenType, tokenType.getRegex(), tokenType.getRegex(), lineNumber);
             }
         }
 
@@ -152,8 +112,8 @@ public class LoxScanner {
         return null;
     }
 
-    private boolean compare(String multiple) {
-        char[] multipleChars = multiple.toCharArray();
+    private boolean compare(TokenType tokenType) {
+        char[] multipleChars = tokenType.getRegex().toCharArray();
         char[] charsToCheck = new char[multipleChars.length];
 
         if (charsQueue.size() < multipleChars.length)
