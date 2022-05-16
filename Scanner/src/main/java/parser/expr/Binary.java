@@ -16,6 +16,6 @@ public class Binary extends Expr {
 
     @Override
     public String print() {
-        return "(%s %s %s)".formatted(operator.lexeme, left.print(), right.print());
+        return "(%s %s %s)".formatted(left.print(), operator.lexeme, right.print());
     }
 }

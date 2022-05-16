@@ -1,5 +1,9 @@
 package scanner;
 
+import parser.Parser;
+
+import java.util.List;
+
 public class Main {
 
     static final String program = """
@@ -10,6 +14,7 @@ public class Main {
             """;
 
     public static void main(String[] args) {
+        /*
         long start = System.nanoTime();
         LoxScanner scanner = new LoxScanner(program);
         for (int i = 0; i < 10; i++) {
@@ -30,5 +35,11 @@ public class Main {
         LoxScanner scanner3 = new LoxScanner("//Kommentar ohne Sinn + - * / oops@ kp");
         scanner3.scan();
         System.out.println("Zeit: " + (System.nanoTime() - start));
+        */
+        LoxScanner loxScanner = new LoxScanner(program);
+        List<Token> tokens = loxScanner.scan();
+
+        Parser parser = new Parser(tokens);
+        parser.parse();
     }
 }
