@@ -10,12 +10,17 @@ public class Binary extends Expr {
     }
 
 
-    final Expr left;
-    final Token operator;
-    final Expr right;
+    public final Expr left;
+    public final Token operator;
+    public final Expr right;
 
     @Override
     public String print() {
         return "(%s %s %s)".formatted(left.print(), operator.lexeme, right.print());
+    }
+
+    @Override
+    public <R> R accept(ExprVisitor<R> exprVisitor) {
+        return null;
     }
 }
