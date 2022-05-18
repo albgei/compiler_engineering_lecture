@@ -16,4 +16,9 @@ public class Var extends Stmt {
     public String print() {
         return "(= %s %s)".formatted(name.lexeme, initializer.print());
     }
+
+    @Override
+    public <R> R accept(StmtVisitor<R> stmtVisitor) {
+        return null;
+    }
 }

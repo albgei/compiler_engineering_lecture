@@ -1,15 +1,15 @@
-package com.thecout.lox;
 
-import com.thecout.lox.Parser.Parser;
-import com.thecout.lox.Parser.Stmts.Stmt;
-import com.thecout.lox.Traversal.Interpreter;
+import parser.*;
+import parser.stmts.*;
+import scanner.*;
+import traversal.*;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -78,7 +78,7 @@ public class InterpretTest {
             """;
     @Test
     void loopTest2() {
-        Scanner scanner = new Scanner(looptest2);
+        LoxScanner scanner = new LoxScanner(looptest2);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         Interpreter interpreter = new Interpreter();
@@ -89,7 +89,7 @@ public class InterpretTest {
     }
     @Test
     void loopTest() {
-        Scanner scanner = new Scanner(looptest);
+        LoxScanner scanner = new LoxScanner(looptest);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         Interpreter interpreter = new Interpreter();
@@ -100,7 +100,7 @@ public class InterpretTest {
     }
     @Test
     void conditionalTest() {
-        Scanner scanner = new Scanner(conditionaltest1);
+        LoxScanner scanner = new LoxScanner(conditionaltest1);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         Interpreter interpreter = new Interpreter();
@@ -111,7 +111,7 @@ public class InterpretTest {
     }
     @Test
     void arithmeticTest2() {
-        Scanner scanner = new Scanner(arithmetic2);
+        LoxScanner scanner = new LoxScanner(arithmetic2);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         Interpreter interpreter = new Interpreter();
@@ -123,7 +123,7 @@ public class InterpretTest {
 
     @Test
     void arithmeticTest() {
-        Scanner scanner = new Scanner(arithmetic1);
+        LoxScanner scanner = new LoxScanner(arithmetic1);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         Interpreter interpreter = new Interpreter();
@@ -135,7 +135,7 @@ public class InterpretTest {
 
     @Test
     void noFailTest() {
-        Scanner scanner = new Scanner(program);
+        LoxScanner scanner = new LoxScanner(program);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         Interpreter interpreter = new Interpreter();

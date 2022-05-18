@@ -20,18 +20,6 @@ public class Parser {
 
     public List<Stmt> parse() {
 
-        /*
-        Thread max_wait = new Thread(() -> {
-        long time = System.currentTimeMillis();
-
-        if (System.currentTimeMillis() - time > 10000) {
-            System.out.println("Zeitüberschreitung beim Parsen.");
-            return;
-        }
-        });
-        max_wait.start();
-        */
-
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
             statements.add(declaration());
@@ -47,7 +35,7 @@ public class Parser {
 
     private Stmt declaration() {
         try {
-            if (match(TokenType.FUN)) return function("function");
+            if (match(TokenType.FUN)) return function();
             if (match(TokenType.VAR)) return varDeclaration();
 
             return statement();
@@ -120,12 +108,11 @@ public class Parser {
     }
 
     private Stmt returnStatement() {
-        int old = current - 1;
         if (match(TokenType.SEMICOLON))
-            return new Return(tokens.get(old), null);
+            return new Return(null);
         Expr expr = expression();
         consume(TokenType.SEMICOLON, "Expect ';' after return statement.");
-        return new Return(tokens.get(old), expr);
+        return new Return(expr);
     }
 
     private Stmt varDeclaration() {
@@ -152,7 +139,7 @@ public class Parser {
         return new Expression(expr);
     }
 
-    private Function function(String kind) {
+    private Function function() {
         Token name;
         List<Stmt> body;
         consume(TokenType.IDENTIFIER, "Expect identifier after 'fun'.");
@@ -185,7 +172,7 @@ public class Parser {
         return block;
     }
 
-    private Expr assignment() {
+    private Expr assignment() {  //wahrscheinlich falsch aber egal
         Token name = null;
         Expr value;
         if (false &&(check(TokenType.IDENTIFIER) || check(TokenType.STRING))) {
@@ -280,13 +267,8 @@ public class Parser {
         return call();
     }
 
-    private Expr finishCall(Expr callee) {
-        return null;
-    }
-
     private Expr call() {
         List<Expr> arguments = new ArrayList<>();
-        Token paren = previous();                               //wahrscheinlich falsch aber egal
         Expr callee = primary();
 
         while (check(TokenType.RIGHT_PAREN) || check(TokenType.DOT)) {
@@ -298,7 +280,7 @@ public class Parser {
             }
         }
 
-        return new Call(callee, paren, arguments);
+        return new Call(callee, arguments);
 
     }
 

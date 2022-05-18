@@ -1,8 +1,10 @@
-package com.thecout.lox;
 
-import com.thecout.lox.Parser.Parser;
-import com.thecout.lox.Parser.Stmts.Stmt;
-import com.thecout.lox.Traversal.AstPrinter;
+
+import parser.*;
+import parser.stmts.*;
+import scanner.*;
+import traversal.*;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -18,7 +20,7 @@ public class PrintTest {
     //Just succeeds
     @Test
     void printTest() {
-        Scanner scanner = new Scanner(program);
+        LoxScanner scanner = new LoxScanner(program);
         List<Token> actual = scanner.scan();
         Parser parser = new Parser(actual);
         List<Stmt> statements = parser.parse();

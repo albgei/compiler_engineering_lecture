@@ -1,4 +1,5 @@
-package com.thecout.lox.Parser.Expr;
+package parser.expr;
+
 
 public interface ExprVisitor<R> {
     R visitAssignExpr(Assign expr);

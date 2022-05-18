@@ -1,4 +1,4 @@
-package com.thecout.lox.Parser.Stmts;
+package parser.stmts;
 
 
 public interface StmtVisitor<R> {
