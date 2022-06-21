@@ -175,7 +175,7 @@ public class Parser {
         return block;
     }
 
-    private Expr assignment() {  //wahrscheinlich falsch aber egal
+    private Expr assignment() {
         Expr expr = or();
         if (match(EQUAL)) {
             Token equals = previous();
@@ -193,7 +193,7 @@ public class Parser {
     private Expr or() {
         Expr expr = and();
 
-        if (match(OR)) {
+        while (match(OR)) {
             Token operator = previous();
             Expr right = and();
             expr = new Logical(expr, operator, right);
@@ -205,10 +205,10 @@ public class Parser {
     private Expr and() {
         Expr expr = equality();
 
-        if (match(AND)) {
+        while (match(AND)) {
             Token operator = previous();
             Expr right = equality();
-            expr = new Logical(expr, operator, right);
+            expr = new Binary(expr, operator, right);
         }
 
         return expr;
@@ -217,7 +217,7 @@ public class Parser {
     private Expr equality() {
         Expr expr = comparison();
 
-        if (match(EQUAL_EQUAL) || match(BANG_EQUAL)) {
+        while (match(EQUAL_EQUAL) || match(BANG_EQUAL)) {
             Token operator = previous();
             Expr right = comparison();
             expr = new Binary(expr, operator, right);
@@ -229,7 +229,7 @@ public class Parser {
     private Expr comparison() {
         Expr expr = addition();
 
-        if (match(GREATER) || match(GREATER_EQUAL) || match(LESS) || match(LESS_EQUAL)) {
+        while (match(GREATER) || match(GREATER_EQUAL) || match(LESS) || match(LESS_EQUAL)) {
             Token operator = previous();
             Expr right = addition();
             expr = new Binary(expr, operator, right);
@@ -241,7 +241,7 @@ public class Parser {
     private Expr addition() {
         Expr expr = multiplication();
 
-        if (match(MINUS) || match(PLUS)) {
+        while (match(MINUS) || match(PLUS)) {
             Token operator = previous();
             Expr right = multiplication();
             expr = new Binary(expr, operator, right);
@@ -254,7 +254,7 @@ public class Parser {
     private Expr multiplication() {
         Expr expr = unary();
 
-        if (match(SLASH) || match(STAR)) {
+        while (match(SLASH) || match(STAR)) {
             Token operator = previous();
             Expr right = unary();
             expr = new Binary(expr, operator, right);

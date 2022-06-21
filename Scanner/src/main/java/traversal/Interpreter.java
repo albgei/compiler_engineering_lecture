@@ -35,7 +35,6 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     public void interpret(List<Stmt> statements) {
         try {
             for (Stmt statement : statements) {
-                if (statement != null)
                 execute(statement);
             }
         } catch (RuntimeError error) {
