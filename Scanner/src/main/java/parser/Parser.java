@@ -7,7 +7,10 @@ import parser.expr.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static scanner.TokenType.*;
+
 public class Parser {
+
     private static class ParseError extends RuntimeException {
     }
 
@@ -35,8 +38,8 @@ public class Parser {
 
     private Stmt declaration() {
         try {
-            if (match(TokenType.FUN)) return function();
-            if (match(TokenType.VAR)) return varDeclaration();
+            if (match(FUN)) return function();
+            if (match(VAR)) return varDeclaration();
 
             return statement();
         } catch (ParseError error) {
@@ -45,12 +48,12 @@ public class Parser {
     }
 
     private Stmt statement() {
-        if (match(TokenType.FOR)) return forStatement();
-        if (match(TokenType.IF)) return ifStatement();
-        if (match(TokenType.PRINT)) return printStatement();
-        if (match(TokenType.RETURN)) return returnStatement();
-        if (match(TokenType.WHILE)) return whileStatement();
-        if (match(TokenType.LEFT_BRACE)) return new Block(block());
+        if (match(FOR)) return forStatement();
+        if (match(IF)) return ifStatement();
+        if (match(PRINT)) return printStatement();
+        if (match(RETURN)) return returnStatement();
+        if (match(WHILE)) return whileStatement();
+        if (match(LEFT_BRACE)) return new Block(block());
 
         return expressionStatement();
     }
@@ -60,21 +63,21 @@ public class Parser {
         Expr increment;
         Expr condition;
 
-        consume(TokenType.LEFT_PAREN, "Expect '(' at the beginning of for head.");
-        if (match(TokenType.VAR)) {
+        consume(LEFT_PAREN, "Expect '(' at the beginning of for head.");
+        if (match(VAR)) {
             block.add(varDeclaration());
-        } else if (!match(TokenType.SEMICOLON)) {
+        } else if (!match(SEMICOLON)) {
             block.add(expressionStatement());
         } else {
-            consume(TokenType.SEMICOLON, "Expect ';' in for statement if not starts with variable");
+            consume(SEMICOLON, "Expect ';' in for statement if not starts with variable");
         }
 
         increment = expression();
-        consume(TokenType.SEMICOLON, "Expect ';' after increment expression.");
+        consume(SEMICOLON, "Expect ';' after increment expression.");
 
 
         condition = expression();
-        consume(TokenType.RIGHT_PAREN, "Expect ')' at the end of for head.");
+        consume(RIGHT_PAREN, "Expect ')' at the end of for head.");
 
         List<Stmt> body = new ArrayList<>();
         body.add(statement());
@@ -88,13 +91,13 @@ public class Parser {
     }
 
     private Stmt ifStatement() {
-        consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
         Expr condition = expression();
-        consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+        consume(RIGHT_PAREN, "Expect ')' after if condition.");
 
         Stmt thenBranch = statement();
         Stmt elseBranch = null;
-        if (match(TokenType.ELSE)) {
+        if (match(ELSE)) {
             elseBranch = statement();
         }
 
@@ -103,59 +106,59 @@ public class Parser {
 
     private Stmt printStatement() {
         Expr expr = expression();
-        consume(TokenType.SEMICOLON, "Expect ';' after print statement.");
+        consume(SEMICOLON, "Expect ';' after print statement.");
         return new Print(expr);
     }
 
     private Stmt returnStatement() {
-        if (match(TokenType.SEMICOLON))
+        if (match(SEMICOLON))
             return new Return(null);
         Expr expr = expression();
-        consume(TokenType.SEMICOLON, "Expect ';' after return statement.");
+        consume(SEMICOLON, "Expect ';' after return statement.");
         return new Return(expr);
     }
 
     private Stmt varDeclaration() {
         Expr init = null;
-        consume(TokenType.IDENTIFIER, "Expect identifier after 'var'.");
+        consume(IDENTIFIER, "Expect identifier after 'var'.");
         Token name = previous();
-        if (match(TokenType.EQUAL))
+        if (match(EQUAL))
             init = expression();
-        consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
         return new Var(name, init);
     }
 
     private Stmt whileStatement() {
-        consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+        consume(LEFT_PAREN, "Expect '(' after 'while'.");
         Expr condition = expression();
-        consume(TokenType.RIGHT_PAREN, "Expect ')' after while expression.");
+        consume(RIGHT_PAREN, "Expect ')' after while expression.");
         Stmt body = statement();
         return new While(condition, body);
     }
 
     private Stmt expressionStatement() {
         Expr expr = expression();
-        consume(TokenType.SEMICOLON, "Expect ';' after Expression");
+        consume(SEMICOLON, "Expect ';' after Expression");
         return new Expression(expr);
     }
 
     private Function function() {
         Token name;
         List<Stmt> body;
-        consume(TokenType.IDENTIFIER, "Expect identifier after 'fun'.");
+        consume(IDENTIFIER, "Expect identifier after 'fun'.");
         name = previous();
-        consume(TokenType.LEFT_PAREN, "Expect '(' after function identifier.");
+        consume(LEFT_PAREN, "Expect '(' after function identifier.");
         List<Token> parameters = parameters();
-        consume(TokenType.RIGHT_PAREN, "Expect ')' after function parameter list.");
-        consume(TokenType.LEFT_BRACE, "Expect '{' at the beginning of a code block.");
+        consume(RIGHT_PAREN, "Expect ')' after function parameter list.");
+        consume(LEFT_BRACE, "Expect '{' at the beginning of a code block.");
         body = block();
         return new Function(name, parameters, body);
     }
 
     private List<Token> parameters() {
         ArrayList<Token> parameters = new ArrayList<>();
-        while (check(TokenType.IDENTIFIER) || match(TokenType.COMMA)) {
-            if (match(TokenType.IDENTIFIER)) {
+        while (check(IDENTIFIER) || match(COMMA)) {
+            if (match(IDENTIFIER)) {
                 parameters.add(previous());
             }
         }
@@ -165,30 +168,32 @@ public class Parser {
     private List<Stmt> block() {
         List<Stmt> block = new ArrayList<>();
 
-        while (!check(TokenType.RIGHT_BRACE)) {
+        while (!check(RIGHT_BRACE)) {
             block.add(declaration());
         }
-        consume(TokenType.RIGHT_BRACE, "Expect '}' at the end of a block.");
+        consume(RIGHT_BRACE, "Expect '}' at the end of a block.");
         return block;
     }
 
     private Expr assignment() {  //wahrscheinlich falsch aber egal
-        Token name = null;
-        Expr value;
-        if (false &&(check(TokenType.IDENTIFIER) || check(TokenType.STRING))) {
-            call();
-            name = previous();
-            match(TokenType.EQUAL);
-            value = assignment();
-        } else
-            value = or();
-        return new Assign(name, value);
+        Expr expr = or();
+        if (match(EQUAL)) {
+            Token equals = previous();
+            Expr value = assignment();
+
+            if (expr instanceof Variable) {
+                Token name = ((Variable) expr).name;
+                return new Assign(name, value);
+            }
+            ParserError.error(equals, "");
+        }
+        return expr;
     }
 
     private Expr or() {
         Expr expr = and();
 
-        while (match(TokenType.OR)) {
+        while (match(OR)) {
             Token operator = previous();
             Expr right = and();
             expr = new Logical(expr, operator, right);
@@ -200,7 +205,7 @@ public class Parser {
     private Expr and() {
         Expr expr = equality();
 
-        while (match(TokenType.AND)) {
+        while (match(AND)) {
             Token operator = previous();
             Expr right = equality();
             expr = new Logical(expr, operator, right);
@@ -212,7 +217,7 @@ public class Parser {
     private Expr equality() {
         Expr expr = comparison();
 
-        while (match(TokenType.EQUAL_EQUAL) || match(TokenType.BANG_EQUAL)) {
+        while (match(EQUAL_EQUAL) || match(BANG_EQUAL)) {
             Token operator = previous();
             Expr right = comparison();
             expr = new Logical(expr, operator, right);
@@ -224,7 +229,7 @@ public class Parser {
     private Expr comparison() {
         Expr expr = addition();
 
-        while (match(TokenType.GREATER) || match(TokenType.GREATER_EQUAL) || match(TokenType.LESS) || match(TokenType.LESS_EQUAL)) {
+        while (match(GREATER) || match(GREATER_EQUAL) || match(LESS) || match(LESS_EQUAL)) {
             Token operator = previous();
             Expr right = addition();
             expr = new Logical(expr, operator, right);
@@ -236,7 +241,7 @@ public class Parser {
     private Expr addition() {
         Expr expr = multiplication();
 
-        while (match(TokenType.MINUS) || match(TokenType.PLUS)) {
+        while (match(MINUS) || match(PLUS)) {
             Token operator = previous();
             Expr right = multiplication();
             expr = new Binary(expr, operator, right);
@@ -249,7 +254,7 @@ public class Parser {
     private Expr multiplication() {
         Expr expr = unary();
 
-        while (match(TokenType.SLASH) || match(TokenType.STAR)) {
+        while (match(SLASH) || match(STAR)) {
             Token operator = previous();
             Expr right = unary();
             expr = new Binary(expr, operator, right);
@@ -259,7 +264,7 @@ public class Parser {
     }
 
     private Expr unary() {
-        if (match(TokenType.BANG) || match(TokenType.MINUS)) {
+        if (match(BANG) || match(MINUS)) {
             Token operator = previous();
             Expr right = unary();
             return new Unary(operator, right);
@@ -270,17 +275,24 @@ public class Parser {
     private Expr call() {
         List<Expr> arguments = new ArrayList<>();
         Expr callee = primary();
-
-        while (check(TokenType.RIGHT_PAREN) || check(TokenType.DOT)) {
-            if (match(TokenType.RIGHT_PAREN))
+/*
+        while (check(RIGHT_PAREN) || check(DOT)) {
+            if (match(RIGHT_PAREN))
                 arguments.addAll(arguments());
             else {
-                consume(TokenType.DOT, "Expect '.' after primary/argument list in call.");
-                consume(TokenType.IDENTIFIER, "Expect identifier after '.' in call.");
+                consume(DOT, "Expect '.' after primary/argument list in call.");
+                consume(IDENTIFIER, "Expect identifier after '.' in call.");
             }
         }
+        */
+        if (match((LEFT_PAREN))) {
+            arguments = arguments();
+            consume(RIGHT_PAREN, "");
+            return new Call(callee, arguments);
+        }
+        return callee;
 
-        return new Call(callee, arguments);
+//        return new Call(callee, arguments);
 
     }
 
@@ -288,8 +300,8 @@ public class Parser {
     private List<Expr> arguments() {
         ArrayList<Expr> arguments = new ArrayList<>();
         arguments.add(expression());
-        while (!match(TokenType.RIGHT_PAREN)) {
-            consume(TokenType.COMMA, "Expect ',' or '(' after expression in arguments");
+        while (!match(RIGHT_PAREN)) {
+            consume(COMMA, "Expect ',' or '(' after expression in arguments");
             arguments.add(expression());
         }
         return arguments;
@@ -300,15 +312,15 @@ public class Parser {
             case STRING:
                 if (peek().lexeme.equals("super")) {
                     advance();
-                    consume(TokenType.DOT, "Expect '.' after super keyword.");
-                    consume(TokenType.IDENTIFIER, "Expect identifier after '.' with call to super");
+                    consume(DOT, "Expect '.' after super keyword.");
+                    consume(IDENTIFIER, "Expect identifier after '.' with call to super");
                     return new Variable(advance());
                 }
                 return new Variable(advance());
             case LEFT_PAREN:
                 advance();
                 Grouping grouping = new Grouping(expression());
-                consume(TokenType.RIGHT_PAREN, "Grouping has to end with ')'");
+                consume(RIGHT_PAREN, "Grouping has to end with ')'");
                 return grouping;
             case TRUE:
             case FALSE:
@@ -322,7 +334,7 @@ public class Parser {
     }
 
     private boolean match(TokenType... types) {
-            for (TokenType type : types) {
+        for (TokenType type : types) {
             if (check(type)) {
                 advance();
                 return true;
@@ -349,7 +361,7 @@ public class Parser {
     }
 
     private boolean isAtEnd() {
-        return peek().type == TokenType.EOF;
+        return peek().type == EOF;
     }
 
     private Token peek() {
