@@ -1,6 +1,8 @@
 package scanner;
 
 import parser.Parser;
+import parser.stmts.Stmt;
+import traversal.Interpreter;
 
 import java.util.List;
 
@@ -27,6 +29,9 @@ public class Main {
         List<Token> tokens = loxScanner.scan();
 
         Parser parser = new Parser(tokens);
-        parser.parse();
+        List<Stmt> statements = parser.parse();
+
+        Interpreter interpreter = new Interpreter();
+        interpreter.interpret(statements);
     }
 }

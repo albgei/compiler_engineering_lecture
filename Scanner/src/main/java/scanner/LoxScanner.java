@@ -147,10 +147,6 @@ public class LoxScanner {
     }
 
     private Token generateTokenNumber(String str, int lineNumber) {
-        if (str.contains(".")) {
-            return new Token(TokenType.NUMBER, str, Double.valueOf(str), lineNumber);
-        } else {
-            return new Token(TokenType.NUMBER, str, Integer.valueOf(str), lineNumber);
-        }
+        return new Token(TokenType.NUMBER, str, Double.valueOf(str), lineNumber);
     }
 }

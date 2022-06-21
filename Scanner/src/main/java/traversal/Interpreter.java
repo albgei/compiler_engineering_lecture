@@ -35,8 +35,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     public void interpret(List<Stmt> statements) {
         try {
             for (Stmt statement : statements) {
-                if (statement != null)
-                    execute(statement);
+                execute(statement);
             }
         } catch (RuntimeError error) {
             error.printStackTrace();
@@ -102,8 +101,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     public Object visitCallExpr(Call expr) {
         Object obj = evaluate(expr.callee);
         LoxFunction function = (LoxFunction) obj;
-        List<Object> FunctionList = new ArrayList<>();
-        FunctionList.addAll(expr.arguments);
+        List<Object> FunctionList = new ArrayList<>(expr.arguments);
         return function.call(this, FunctionList);
     }
 
