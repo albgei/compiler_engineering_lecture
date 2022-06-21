@@ -100,7 +100,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     @Override
     public Object visitCallExpr(Call expr) {
         Object obj = evaluate(expr.callee);
-        LoxFunction function = (LoxFunction) obj;
+        LoxCallable function = (LoxCallable) obj;
         List<Object> FunctionList = new ArrayList<>(expr.arguments);
         return function.call(this, FunctionList);
     }
