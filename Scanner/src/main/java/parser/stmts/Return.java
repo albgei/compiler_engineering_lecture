@@ -7,7 +7,7 @@ public class Return extends Stmt {
         this.value = value;
     }
 
-    final Expr value;
+    public final Expr value;
 
     @Override
     public String print() {

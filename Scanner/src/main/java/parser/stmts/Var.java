@@ -9,8 +9,8 @@ public class Var extends Stmt {
         this.initializer = initializer;
     }
 
-    final Token name;
-    final Expr initializer;
+    public final Token name;
+    public final Expr initializer;
 
     @Override
     public String print() {
