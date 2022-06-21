@@ -72,11 +72,11 @@ public class Parser {
             consume(SEMICOLON, "Expect ';' in for statement if not starts with variable");
         }
 
-        increment = expression();
+        condition = expression();
         consume(SEMICOLON, "Expect ';' after increment expression.");
 
 
-        condition = expression();
+        increment = expression();
         consume(RIGHT_PAREN, "Expect ')' at the end of for head.");
 
         List<Stmt> body = new ArrayList<>();
@@ -193,7 +193,7 @@ public class Parser {
     private Expr or() {
         Expr expr = and();
 
-        while (match(OR)) {
+        if (match(OR)) {
             Token operator = previous();
             Expr right = and();
             expr = new Logical(expr, operator, right);
@@ -205,7 +205,7 @@ public class Parser {
     private Expr and() {
         Expr expr = equality();
 
-        while (match(AND)) {
+        if (match(AND)) {
             Token operator = previous();
             Expr right = equality();
             expr = new Logical(expr, operator, right);
@@ -217,10 +217,10 @@ public class Parser {
     private Expr equality() {
         Expr expr = comparison();
 
-        while (match(EQUAL_EQUAL) || match(BANG_EQUAL)) {
+        if (match(EQUAL_EQUAL) || match(BANG_EQUAL)) {
             Token operator = previous();
             Expr right = comparison();
-            expr = new Logical(expr, operator, right);
+            expr = new Binary(expr, operator, right);
         }
 
         return expr;
@@ -229,10 +229,10 @@ public class Parser {
     private Expr comparison() {
         Expr expr = addition();
 
-        while (match(GREATER) || match(GREATER_EQUAL) || match(LESS) || match(LESS_EQUAL)) {
+        if (match(GREATER) || match(GREATER_EQUAL) || match(LESS) || match(LESS_EQUAL)) {
             Token operator = previous();
             Expr right = addition();
-            expr = new Logical(expr, operator, right);
+            expr = new Binary(expr, operator, right);
         }
 
         return expr;
@@ -241,7 +241,7 @@ public class Parser {
     private Expr addition() {
         Expr expr = multiplication();
 
-        while (match(MINUS) || match(PLUS)) {
+        if (match(MINUS) || match(PLUS)) {
             Token operator = previous();
             Expr right = multiplication();
             expr = new Binary(expr, operator, right);
@@ -254,7 +254,7 @@ public class Parser {
     private Expr multiplication() {
         Expr expr = unary();
 
-        while (match(SLASH) || match(STAR)) {
+        if (match(SLASH) || match(STAR)) {
             Token operator = previous();
             Expr right = unary();
             expr = new Binary(expr, operator, right);
@@ -273,34 +273,21 @@ public class Parser {
     }
 
     private Expr call() {
-        List<Expr> arguments = new ArrayList<>();
+        List<Expr> arguments;
         Expr callee = primary();
-/*
-        while (check(RIGHT_PAREN) || check(DOT)) {
-            if (match(RIGHT_PAREN))
-                arguments.addAll(arguments());
-            else {
-                consume(DOT, "Expect '.' after primary/argument list in call.");
-                consume(IDENTIFIER, "Expect identifier after '.' in call.");
-            }
-        }
-        */
         if (match((LEFT_PAREN))) {
             arguments = arguments();
             consume(RIGHT_PAREN, "");
             return new Call(callee, arguments);
         }
         return callee;
-
-//        return new Call(callee, arguments);
-
     }
 
 
     private List<Expr> arguments() {
         ArrayList<Expr> arguments = new ArrayList<>();
         arguments.add(expression());
-        while (!match(RIGHT_PAREN)) {
+        while (!check(RIGHT_PAREN)) {
             consume(COMMA, "Expect ',' or '(' after expression in arguments");
             arguments.add(expression());
         }
@@ -309,14 +296,6 @@ public class Parser {
 
     private Expr primary() {
         switch (peek().type) {
-            case STRING:
-                if (peek().lexeme.equals("super")) {
-                    advance();
-                    consume(DOT, "Expect '.' after super keyword.");
-                    consume(IDENTIFIER, "Expect identifier after '.' with call to super");
-                    return new Variable(advance());
-                }
-                return new Variable(advance());
             case LEFT_PAREN:
                 advance();
                 Grouping grouping = new Grouping(expression());
@@ -325,7 +304,9 @@ public class Parser {
             case TRUE:
             case FALSE:
             case NIL:
+            case STRING:
             case NUMBER:
+                return new Literal(advance().literal);
             case IDENTIFIER:
                 return new Variable(advance());
             default:

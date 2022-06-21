@@ -130,6 +130,8 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     @Override
     public Object visitUnaryExpr(Unary expr) {
         Object right = this.evaluate(expr.right);
+        if (expr.operator == null)
+            return evaluate(expr.right);
         return switch (expr.operator.type) {
             case BANG -> !(boolean) right;
             case MINUS -> -(double) right;
